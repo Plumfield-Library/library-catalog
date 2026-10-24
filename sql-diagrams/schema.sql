@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS "patrons" (
 CREATE TABLE IF NOT EXISTS "books" (
 	"id" INTEGER,
 	"title" TEXT NOT NULL,
-	"barcode" TEXT NOT NULL UNIQUE,
 	"authors" TEXT,
-	"series" INTEGER,
 	PRIMARY KEY("id")
 );
 
@@ -61,9 +59,9 @@ CREATE TABLE IF NOT EXISTS "books_collections" (
 	"collection" INTEGER,
 	PRIMARY KEY("book", "collection"),
 	FOREIGN KEY ("book") REFERENCES "books"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION,
+	ON UPDATE NO ACTION ON DELETE CASCADE,
 	FOREIGN KEY ("collection") REFERENCES "collections"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION
+	ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "tags" (
@@ -76,10 +74,10 @@ CREATE TABLE IF NOT EXISTS "tags_books" (
 	"tag" INTEGER,
 	"book" INTEGER,
 	PRIMARY KEY("tag", "book"),
-	FOREIGN KEY ("tag") REFERENCES "tags"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION,
 	FOREIGN KEY ("book") REFERENCES "books"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION
+	ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY ("tag") REFERENCES "tags"("id")
+	ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "book_series" (
@@ -89,7 +87,21 @@ CREATE TABLE IF NOT EXISTS "book_series" (
 	"series_number" INTEGER,
 	PRIMARY KEY("book", "series"),
 	FOREIGN KEY ("book") REFERENCES "books"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION,
+	ON UPDATE NO ACTION ON DELETE CASCADE,
 	FOREIGN KEY ("series") REFERENCES "series"("id")
-	ON UPDATE NO ACTION ON DELETE NO ACTION
+	ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "copies" (
+	"id" INTEGER NOT NULL,
+	"branch" TEXT NOT NULL DEFAULT 'main',
+	"barcode" TEXT NOT NULL UNIQUE,
+	"format" TEXT NOT NULL DEFAULT 'hardcover',
+	"book" INTEGER NOT NULL,
+	"call_number" TEXT,
+	"status" TEXT NOT NULL DEFAULT 'present' CHECK("status" IN ('present', 'missing', 'repair', 'preview')),
+	"last_inventoried" TEXT,
+	PRIMARY KEY("id"),
+	FOREIGN KEY ("book") REFERENCES "books"("id")
+	ON UPDATE NO ACTION ON DELETE CASCADE
 );

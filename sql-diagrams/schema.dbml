@@ -10,9 +10,7 @@ Table patrons [headercolor: #175e7a] {
 Table books [headercolor: #175e7a] {
 	id integer [ pk ]
 	title text [ not null ]
-	barcode text [ not null, unique ]
 	authors text
-	series integer
 }
 
 Table series [headercolor: #175e7a] {
@@ -63,6 +61,17 @@ Table book_series [headercolor: #41177a] {
 	series_number integer [ note: 'Series number on join record incase book has a different series number in each series' ]
 }
 
+Table copies [headercolor: #175e7a] {
+	id integer [ pk, increment, not null ]
+	branch text(225) [ not null, default: 'main' ]
+	barcode text(255) [ not null, unique ]
+	format text(255) [ not null, default: 'hardcover' ]
+	book integer [ not null ]
+	call_number text(255)
+	status text(255) [ not null, default: 'present' ]
+	last_inventoried text(65535)
+}
+
 Ref books_on_hold {
 	holds.book_id > books.id [ delete: cascade, update: no action ]
 }
@@ -80,25 +89,29 @@ Ref patron_checkouts {
 }
 
 Ref book_collections {
-	books_collections.book > books.id [ delete: no action, update: no action ]
+	books_collections.book > books.id [ delete: cascade, update: no action ]
 }
 
 Ref books_in_collection {
-	books_collections.collection > collections.id [ delete: no action, update: no action ]
-}
-
-Ref books_tagged_with_tag {
-	tags_books.tag > tags.id [ delete: no action, update: no action ]
-}
-
-Ref book_series {
-	book_series.book > books.id [ delete: no action, update: no action ]
-}
-
-Ref books_in_series {
-	book_series.series > series.id [ delete: no action, update: no action ]
+	books_collections.collection > collections.id [ delete: cascade, update: no action ]
 }
 
 Ref book_tags {
 	tags_books.book > books.id [ delete: no action, update: no action ]
+}
+
+Ref books_tagged_with_tag {
+	tags_books.tag > tags.id [ delete: cascade, update: no action ]
+}
+
+Ref book_series {
+	book_series.book > books.id [ delete: cascade, update: no action ]
+}
+
+Ref books_in_series {
+	book_series.series > series.id [ delete: cascade, update: no action ]
+}
+
+Ref book_copy {
+	copies.book > books.id [ delete: cascade, update: no action ]
 }
