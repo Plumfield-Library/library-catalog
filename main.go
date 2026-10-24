@@ -11,11 +11,16 @@ import (
 //go:embed all:frontend/dist
 var content embed.FS
 
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello World!"))
+}
+
 func main() {
-	handler, err := spa.Handler(content, "build", "index.html", true)
+	handler, err := spa.Handler(content, "frontend/dist", "index.html", true)
 	if err != nil {
 		log.Fatalf("failed to initialize SPA handler: %v", err)
 	}
+	http.HandleFunc("/test", helloWorld)
 
 	http.Handle("/", handler)
 	log.Println("Starting server on :8080")
