@@ -1,0 +1,54 @@
+Table patrons [headercolor: #175e7a] {
+	id integer [ pk ]
+	first_name text [ not null ]
+	last_name text [ not null ]
+	full_name text
+	can_checkout integer [ not null, default: 1 ]
+	can_place_holds integer [ not null, default: 1 ]
+}
+
+Table books [headercolor: #175e7a] {
+	id integer [ pk ]
+	title text [ not null ]
+	barcode text [ not null, unique ]
+	authors text
+	series integer
+}
+
+Table series [headercolor: #175e7a] {
+	id integer [ pk ]
+	title text [ not null ]
+}
+
+Table holds [headercolor: #175e7a] {
+	placed_at text [ not null, default: CURRENT_TIMESTAMP ]
+	expires_at text [ not null, default: `datetime('now', '+14 days')` ]
+	book_id integer [ not null ]
+	patron_id integer [ not null ]
+	id integer [ pk ]
+}
+
+Table checkouts [headercolor: #175e7a] {
+	placed_at text [ not null, default: CURRENT_TIMESTAMP ]
+	expires_at text [ not null, default: `datetime('now', '+45 days')` ]
+	returned_at text
+	id integer [ pk ]
+	book_id integer [ not null ]
+	patron_id integer [ not null ]
+}
+
+Ref fk_holds_book_id_books {
+	holds.book_id > books.id [ delete: cascade, update: no action ]
+}
+
+Ref fk_holds_patron_id_patrons {
+	holds.patron_id > patrons.id [ delete: cascade, update: no action ]
+}
+
+Ref fk_checkouts_book_id_books {
+	checkouts.book_id > books.id [ delete: cascade, update: no action ]
+}
+
+Ref fk_checkouts_patron_id_patrons {
+	checkouts.patron_id > patrons.id [ delete: cascade, update: no action ]
+}
